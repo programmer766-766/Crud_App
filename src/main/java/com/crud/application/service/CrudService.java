@@ -91,7 +91,7 @@ panRepository.findAll();
             return !userRepository.existsById(id);
     }
     public void demo(){
-        String string;
+        System.out.println("bye bye");
     }
 
    /*
