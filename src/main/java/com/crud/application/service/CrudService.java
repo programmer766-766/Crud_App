@@ -99,7 +99,7 @@ public class CrudService implements ICrudApp,IPanData{
                 new NoUserFoundException("User not found with Id:" + userId));
         //store pan details into entity
         PanEntity pan=new PanEntity();
-        pan.setPanNumber("abcd xcuh oiuy");
+        pan.setPanNumber("husw grsd pouy");
         pan.setAppliedOn(LocalDateTime.now());
         pan.setUserId(userEntity);
         //update user entity for adding pan entity
@@ -139,7 +139,6 @@ public class CrudService implements ICrudApp,IPanData{
             userProfile.setUserId(userEntity.getUserId());
             userProfile.setName(userEntity.getName());
             userProfile.setEmail(userEntity.getEmail());
-            userProfile.setCity(userEntity.getCity());
             userProfile.setPanInfo(panDto);
 
             //return UserProfile Dto Object
