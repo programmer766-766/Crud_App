@@ -87,7 +87,7 @@ public class CrudService implements ICrudApp,IPanData{
     public boolean isExists(int id){
             return !userRepository.existsById(id);
     }
-
+    public void demo(){}
 
    /*
    method implementation for add pan details to the existing user
