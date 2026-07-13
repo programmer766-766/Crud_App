@@ -20,8 +20,6 @@ public class UserEntity {
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private AddressEntity address;
 
-
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "PAN_ID")
     private PanEntity panId;
