@@ -90,8 +90,8 @@ panRepository.findAll();
     public boolean isExists(int id){
             return !userRepository.existsById(id);
     }
-    public void demo(){
-        String string;
+    public void gitHub(){
+        System.out.println("hello world");
     }
 
    /*
