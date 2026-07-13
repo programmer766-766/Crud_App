@@ -10,6 +10,7 @@ import com.crud.application.exception.NoUserFoundException;
 import com.crud.application.service.CrudService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ public class UserController {
             @ApiResponse(responseCode = "500",description = "check your connection"),
             @ApiResponse(responseCode = "409",description = "conflict already exists in database")})
     @PostMapping("/create-user")
-    public ResponseEntity<String> createUser(@RequestBody UserRequestDto user){
+    public ResponseEntity<String> createUser(@Valid @RequestBody UserRequestDto user){
         if(user==null)
             throw new DetailsNotFoundException("User cannot be null");
        return new ResponseEntity<>( "Mr."+crudService.addUser(user)
@@ -39,7 +40,7 @@ public class UserController {
     }
 
     @PutMapping("/update-user/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable int id,@RequestBody UserRequestDto user){
+    public ResponseEntity<String> updateUser(@PathVariable int id,@Valid @RequestBody UserRequestDto user){
         if (crudService.isExists(id))
             throw new DetailsNotFoundException("User cannot be null");
         return new ResponseEntity<>( crudService.updateUser(id,user),HttpStatus.OK);

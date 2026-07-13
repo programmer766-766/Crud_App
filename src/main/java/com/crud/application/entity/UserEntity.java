@@ -15,8 +15,11 @@ public class UserEntity {
     private String name;
     @Column(name = "EMAIL")
     private String email;
-    @Column(name = "CITY")
-    private String city;
+
+    @JoinColumn( name = "ADDRESS",nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private AddressEntity address;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "PAN_ID")
     private PanEntity panId;
