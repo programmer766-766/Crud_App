@@ -54,9 +54,9 @@ public class UserController {
     return new ResponseEntity<>(crudService.deleteUser(id),HttpStatus.ACCEPTED);
     }
 
-    @GetMapping("/get-id/{id}")
-    public ResponseEntity<UserEntity> getUserById(@PathVariable int id){
-        return new ResponseEntity<>(crudService.getUserDetail(id), HttpStatus.OK);
+    @GetMapping("/get-id/{name}")
+    public ResponseEntity<UserEntity> getUserById(@PathVariable String name){
+        return new ResponseEntity<>(crudService.getUserDetail(name), HttpStatus.OK);
     }
     //Controller method for add pan card to the existing user
     @PostMapping("/{userId}/add-pan")

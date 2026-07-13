@@ -78,10 +78,10 @@ public class CrudService implements ICrudApp,IPanData{
         return "Mr."+deleteInfo+"your information was successfully deleted.";
     }
 
-    public UserEntity getUserDetail(int id){
-        if(!userRepository.existsById(id))
-            throw new NoUserFoundException("No user available in this id "+id+"...");
-        return userRepository.findById(id).get();
+    public UserEntity getUserDetail(String name){
+        if(!userRepository.existsByName(name))
+            throw new NoUserFoundException("No user available in this name "+name+"...");
+        return userRepository.findByName(name);
     }
 
     public boolean isExists(int id){
