@@ -17,4 +17,7 @@ public class UserEntity {
     private String email;
     @Column(name = "CITY")
     private String city;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "PAN_ID")
+    private PanEntity panId;
 }

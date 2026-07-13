@@ -1,5 +1,6 @@
 package com.crud.application.service;
 
+import com.crud.application.dtos.UserProfileResponseDto;
 import com.crud.application.dtos.UserRequestDto;
 import com.crud.application.dtos.UserResponseDto;
 import com.crud.application.entity.UserEntity;
@@ -11,4 +12,5 @@ public interface ICrudApp {
     List<UserEntity> getAllUsers();
     String updateUser(int userId, UserRequestDto userRequestDto);
     String deleteUser(int userId);
+    UserProfileResponseDto showUserProfile(int userId);
 }

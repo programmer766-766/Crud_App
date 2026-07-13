@@ -1,17 +1,23 @@
 package com.crud.application.service;
 
-import com.crud.application.dtos.UserRequestDto;
-import com.crud.application.dtos.UserResponseDto;
+import com.crud.application.dtos.*;
+import com.crud.application.entity.PanEntity;
 import com.crud.application.entity.UserEntity;
+import com.crud.application.exception.NoPanDataAvailableException;
 import com.crud.application.exception.NoUserFoundException;
+import com.crud.application.repository.PanRepository;
 import com.crud.application.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 @AllArgsConstructor
-public class CrudService implements ICrudApp{
+@Service
+public class CrudService implements ICrudApp,IPanData{
 
     private final UserRepository userRepository;
+    private final PanRepository panRepository;
 
     /*
     Method implementation for add user,it except an UserRequestDto object from user
@@ -70,4 +76,65 @@ public class CrudService implements ICrudApp{
     public boolean isExists(int id){
             return !userRepository.existsById(id);
     }
+
+
+   /*
+   method implementation for add pan details to the existing user
+    */
+    @Override
+    public PanResponseDto addPan(int userId) {
+        //fetch user from db
+        UserEntity userEntity = userRepository.findById(userId).orElseThrow(() ->
+                new NoUserFoundException("User not found with Id:" + userId));
+        //store pan details into entity
+        PanEntity pan=new PanEntity();
+        pan.setPanNumber("abcd xcuh oiuy");
+        pan.setAppliedOn(LocalDateTime.now());
+        pan.setUserId(userEntity);
+        //update user entity for adding pan entity
+        userEntity.setPanId(pan);
+        //save
+        panRepository.save(pan);
+        //return proper response
+        return new PanResponseDto(userEntity.getName(),"abcd xcuh oiuy",LocalDateTime.now());
+
+    }
+    /*
+    Implement method for get all pan available in Pan Table
+     */
+    @Override
+    public List<PanEntity> getAllPanData() {
+        List<PanEntity> panData = panRepository.findAll();
+        if(panData.isEmpty()){
+            throw new NoPanDataAvailableException("No pan Available...");
+        }
+        return panData;
+    }
+    /*
+     implementation method for view specific user along with pan details
+     */
+    @Override
+    public UserProfileResponseDto showUserProfile(int userId) {
+        //fetch user from db
+        UserEntity userEntity = userRepository.findById(userId).orElseThrow(() ->
+                new NoUserFoundException("user not found with id:" + userId));
+        if(userEntity.getPanId()!=null){
+            //map user information into UserProfile Object
+            UserProfileResponseDto userProfile=new UserProfileResponseDto();
+
+            //PanDto object for store pan details
+            PanDto panDto=new PanDto(userEntity.getPanId().getPanNumber(),userEntity.getPanId().getAppliedOn());
+
+            userProfile.setUserId(userEntity.getUserId());
+            userProfile.setName(userEntity.getName());
+            userProfile.setEmail(userEntity.getEmail());
+            userProfile.setCity(userEntity.getCity());
+            userProfile.setPanInfo(panDto);
+
+            //return UserProfile Dto Object
+            return userProfile;
+        }
+        throw new NoPanDataAvailableException("No Pan Details available to the user:"+userId);
+    }
+
 }

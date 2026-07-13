@@ -1,6 +1,9 @@
 package com.crud.application.controller;
 
+import com.crud.application.dtos.PanResponseDto;
+import com.crud.application.dtos.UserProfileResponseDto;
 import com.crud.application.dtos.UserRequestDto;
+import com.crud.application.entity.PanEntity;
 import com.crud.application.entity.UserEntity;
 import com.crud.application.exception.DetailsNotFoundException;
 import com.crud.application.exception.NoUserFoundException;
@@ -12,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -52,4 +57,21 @@ public class UserController {
     public ResponseEntity<UserEntity> getUserById(@PathVariable int id){
         return new ResponseEntity<>(crudService.getUserDetail(id), HttpStatus.OK);
     }
+    //Controller method for add pan card to the existing user
+    @PostMapping("/{userId}/add-pan")
+    public ResponseEntity<PanResponseDto> addPanIntoUser(@PathVariable int userId){
+        return ResponseEntity.status(HttpStatus.CREATED).body(crudService.addPan(userId));
+    }
+
+    //controller method for get all pan data's
+    @GetMapping("/get-all/pan")
+    public ResponseEntity<List<PanEntity>> getAllPans(){
+        return ResponseEntity.ok(crudService.getAllPanData());
+    }
+
+    @GetMapping("/get/{userId}/info")
+    public ResponseEntity<UserProfileResponseDto> showUserProfile(@PathVariable int userId){
+        return ResponseEntity.ok(crudService.showUserProfile(userId));
+    }
+
 }
