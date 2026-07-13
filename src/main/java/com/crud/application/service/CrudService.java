@@ -6,9 +6,11 @@ import com.crud.application.entity.UserEntity;
 import com.crud.application.exception.NoUserFoundException;
 import com.crud.application.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 @AllArgsConstructor
+@Service
 public class CrudService implements ICrudApp{
 
     private final UserRepository userRepository;
