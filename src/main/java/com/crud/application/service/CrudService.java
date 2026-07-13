@@ -2,6 +2,7 @@ package com.crud.application.service;
 
 import com.crud.application.dtos.UserRequestDto;
 import com.crud.application.dtos.UserResponseDto;
+import com.crud.application.entity.AddressEntity;
 import com.crud.application.entity.UserEntity;
 import com.crud.application.exception.NoUserFoundException;
 import com.crud.application.repository.UserRepository;
@@ -24,7 +25,14 @@ public class CrudService implements ICrudApp{
         UserEntity addUser=new UserEntity();
         addUser.setName(userRequestDto.getName());
         addUser.setEmail(userRequestDto.getEmail());
-        addUser.setCity(userRequestDto.getCity());
+        AddressEntity addAddress=new AddressEntity();
+        addAddress.setCity(userRequestDto.getCity());
+        addAddress.setCountry(userRequestDto.getAddress().getCountry());
+        addAddress.setStreet(userRequestDto.getAddress().getStreet());
+        addAddress.setPhone(userRequestDto.getAddress().getPhone());
+        addAddress.setZip(userRequestDto.getAddress().getZip());
+        addAddress.setPhone(userRequestDto.getAddress().getPhone());
+        addUser.setAddress(addAddress);
         //save user entity
         userRepository.save(addUser);
         //return an Response object to the user
@@ -49,7 +57,9 @@ public class CrudService implements ICrudApp{
        UserEntity user = userRepository.findById(userId).get();
        user.setName(userRequestDto.getName());
        user.setEmail(userRequestDto.getEmail());
-       user.setCity(userRequestDto.getCity());
+       AddressEntity addAddress=new AddressEntity();
+       addAddress.setCity(userRequestDto.getCity());
+       user.setAddress(addAddress);
        userRepository.save(user);
         return "Successfully update your details Mr."+user.getName();
     }

@@ -2,7 +2,7 @@ package com.crud.application.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
+//Owning part
 @Entity
 @Data
 @Table(name = "USER_ENTITY")
@@ -15,6 +15,9 @@ public class UserEntity {
     private String name;
     @Column(name = "EMAIL")
     private String email;
-    @Column(name = "CITY")
-    private String city;
+
+    @JoinColumn( name = "ADDRESS",nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private AddressEntity address;
+
 }
