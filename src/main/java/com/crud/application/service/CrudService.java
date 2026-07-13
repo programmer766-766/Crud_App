@@ -42,11 +42,32 @@ public class CrudService implements ICrudApp{
 
     @Override
     public String updateUser(int userId, UserRequestDto userRequestDto) {
-        return "";
+        if(!userRepository.existsById(userId))
+            throw new NoUserFoundException("No user available in this id "+userId+"...");
+       UserEntity user = userRepository.findById(userId).get();
+       user.setName(userRequestDto.getName());
+       user.setEmail(userRequestDto.getEmail());
+       user.setCity(userRequestDto.getCity());
+       userRepository.save(user);
+        return "Successfully update your details Mr."+user.getName();
     }
 
     @Override
     public String deleteUser(int userId) {
-        return "";
+        if(!userRepository.existsById(userId))
+            throw new NoUserFoundException("No user available in this id "+userId+"...");
+        String deleteInfo = userRepository.findById(userId).get().getName();
+        userRepository.deleteById(userId);
+        return "Mr."+deleteInfo+"your information was successfully deleted.";
+    }
+
+    public UserEntity getUserDetail(int id){
+        if(!userRepository.existsById(id))
+            throw new NoUserFoundException("No user available in this id "+id+"...");
+        return userRepository.findById(id).get();
+    }
+
+    public boolean isExists(int id){
+            return !userRepository.existsById(id);
     }
 }
