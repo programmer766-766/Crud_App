@@ -28,7 +28,7 @@ public class CrudService implements ICrudApp,IPanData{
     public UserResponseDto addUser(UserRequestDto userRequestDto) {
 
 //testing
-
+panRepository.findAll();
         //map user data into entity fields
         UserEntity addUser=new UserEntity();
         addUser.setName(userRequestDto.getName());
