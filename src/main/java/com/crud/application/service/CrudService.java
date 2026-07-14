@@ -189,14 +189,10 @@ panRepository.findAll();
 
     @Override
     public String updatePanEmail(int userId, String email) {
-
-        UserEntity userEntity = userRepository.fetchUserWithPan(userId);
-        PanEntity pan = userEntity.getPanId();
-        //update pan email
-        pan.setEmail(email);
-        //save pan
-        panRepository.save(pan);
-
-        return "Updation completed";
+        int rowAffected = userRepository.updatePanEmail(userId, email);
+        if(rowAffected>0){
+            return "Update completed!!";
+        }
+        throw new RuntimeException("Updation Failed");
     }
 }
