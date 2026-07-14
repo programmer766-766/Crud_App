@@ -80,4 +80,8 @@ public class UserController {
         return new ResponseEntity<>(crudService.verifyPinCode(code), HttpStatus.OK);
     }
 
+    @GetMapping("/get/pan/{id}")
+    public ResponseEntity<String> getUSerByPan(@PathVariable String id){
+        return ResponseEntity.ok(crudService.getUserByPan(id).toString());
+    }
 }

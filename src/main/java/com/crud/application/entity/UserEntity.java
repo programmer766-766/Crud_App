@@ -2,6 +2,7 @@ package com.crud.application.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Data
@@ -23,4 +24,8 @@ public class UserEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "PAN_ID")
     private PanEntity panId;
+
+    public String toString(){
+        return name + " " + email + " " + address.toString();
+    }
 }

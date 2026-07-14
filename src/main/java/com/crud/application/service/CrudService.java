@@ -12,7 +12,9 @@ import com.crud.application.exception.PinCodeNotFoundException;
 import com.crud.application.repository.AddressRepo;
 import com.crud.application.repository.PanRepository;
 import com.crud.application.repository.UserRepository;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -36,9 +38,14 @@ public class CrudService implements ICrudApp,IPanData,PinCode{
 //testing
 panRepository.findAll();
         //map user data into entity fields
+
         UserEntity addUser=new UserEntity();
         addUser.setName(userRequestDto.getName());
         addUser.setEmail(userRequestDto.getEmail());
+        PanEntity panEntity=new PanEntity();
+        panEntity.setPanNumber(autoPanNumber());
+        panEntity.setUserId(addUser);
+        addUser.setPanId(panEntity);
         AddressEntity addAddress=new AddressEntity();
         addAddress.setCity(userRequestDto.getCity());
         addAddress.setCountry(userRequestDto.getAddress().getCountry());
@@ -121,9 +128,17 @@ panRepository.findAll();
         //save
         panRepository.save(pan);
         //return proper response
-        return new PanResponseDto(userEntity.getName(),"abcd xcuh oiuy",LocalDateTime.now());
+        return new PanResponseDto(userEntity.getName(),autoPanNumber(),LocalDateTime.now());
 
     }
+
+    protected String autoPanNumber(){
+        String five = RandomStringUtils.randomAlphabetic(5).toUpperCase();
+        String four = RandomStringUtils.randomNumeric(4);
+        String one = RandomStringUtils.randomAlphabetic(1).toUpperCase();
+        return  five+four+one;
+    }
+
     /*
     Implement method for get all pan available in Pan Table
      */
@@ -135,6 +150,13 @@ panRepository.findAll();
         }
         return panData;
     }
+// get user details by pan
+    @Override
+    public UserEntity getUserByPan(String panId) {
+        return panRepository.findUserByPan(panId)
+                .orElseThrow(()->new NoPanDataAvailableException("No pan Available..."));
+    }
+
     /*
      implementation method for view specific user along with pan details
      */
