@@ -37,7 +37,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
-                                "/error","/api/auth").permitAll().anyRequest().authenticated());
+                                "/error","/api/auth","/h2-console/**").permitAll().anyRequest().authenticated());
         //disable basic login
         httpSecurity.httpBasic(AbstractHttpConfigurer::disable);
         //config session management
