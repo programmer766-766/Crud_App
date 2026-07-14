@@ -46,7 +46,7 @@ public class UserController {
         if(user==null)
             throw new DetailsNotFoundException("User cannot be null");
        return new ResponseEntity<>( "Mr."+crudService.addUser(user)
-               .getName()+"your details was successfully added",HttpStatus.CREATED);
+               .getName()+" your details was successfully added",HttpStatus.CREATED);
     }
 
     @PutMapping("/update-user/{id}")
@@ -95,6 +95,10 @@ public class UserController {
         }
 
         throw new BadCredentialsException("Invalid username/password");
+//    get pin code details
+    @GetMapping("/get/pincode/{code}")
+    public ResponseEntity<String> verifyPinCode(@PathVariable String code){
+        return new ResponseEntity<>(crudService.verifyPinCode(code), HttpStatus.OK);
     }
 
 }

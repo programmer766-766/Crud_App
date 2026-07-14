@@ -1,6 +1,7 @@
 package com.crud.application.dtos;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
@@ -13,6 +14,7 @@ public class AddressDto {
     private String street;
 
     @NotBlank(message = "Zip code cannot be blank")
+    @Pattern(regexp = "^[0-9]{6}$")
     private String zip;
 
     @NotBlank(message = "Country cannot be blank")
