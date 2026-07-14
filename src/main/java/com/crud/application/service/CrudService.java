@@ -8,6 +8,8 @@ import com.crud.application.entity.AddressEntity;
 import com.crud.application.entity.UserEntity;
 import com.crud.application.exception.NoPanDataAvailableException;
 import com.crud.application.exception.NoUserFoundException;
+import com.crud.application.exception.PinCodeNotFoundException;
+import com.crud.application.repository.AddressRepo;
 import com.crud.application.repository.PanRepository;
 import com.crud.application.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -15,11 +17,15 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+
 @AllArgsConstructor
 @Service
-public class CrudService implements ICrudApp,IPanData{
+public class CrudService implements ICrudApp,IPanData,PinCode{
+
     private final UserRepository userRepository;
     private final PanRepository panRepository;
+    private final AddressRepo addressRepo;
 
     /*
     Method implementation for add user,it except an UserRequestDto object from user
@@ -155,4 +161,11 @@ panRepository.findAll();
         throw new NoPanDataAvailableException("No Pan Details available to the user:"+userId);
     }
 
+    @Override
+    public String verifyPinCode(String pinCode) {
+        if(!addressRepo.isExists(pinCode))
+            throw new PinCodeNotFoundException("PinCode Not Found...");
+        AddressEntity address = addressRepo.findAreaByZipCode(pinCode).get();
+        return address.getCity()+address.getCountry()+address.getState();
+    }
 }

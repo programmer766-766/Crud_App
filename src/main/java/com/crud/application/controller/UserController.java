@@ -36,7 +36,7 @@ public class UserController {
         if(user==null)
             throw new DetailsNotFoundException("User cannot be null");
        return new ResponseEntity<>( "Mr."+crudService.addUser(user)
-               .getName()+"your details was successfully added",HttpStatus.CREATED);
+               .getName()+" your details was successfully added",HttpStatus.CREATED);
     }
 
     @PutMapping("/update-user/{id}")
@@ -73,6 +73,11 @@ public class UserController {
     @GetMapping("/get/{userId}/info")
     public ResponseEntity<UserProfileResponseDto> showUserProfile(@PathVariable int userId){
         return ResponseEntity.ok(crudService.showUserProfile(userId));
+    }
+//    get pin code details
+    @GetMapping("/get/pincode/{code}")
+    public ResponseEntity<String> verifyPinCode(@PathVariable String code){
+        return new ResponseEntity<>(crudService.verifyPinCode(code), HttpStatus.OK);
     }
 
 }

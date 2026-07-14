@@ -9,6 +9,7 @@ import java.util.List;
 // Inverse table
 @Entity
 @Data
+@Table(name = "Address_Details")
 public class AddressEntity {
 
     @Column(name = "CITY")

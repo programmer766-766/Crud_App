@@ -3,6 +3,7 @@ package com.crud.application.controller;
 import com.crud.application.exception.DetailsNotFoundException;
 import com.crud.application.exception.NoPanDataAvailableException;
 import com.crud.application.exception.NoUserFoundException;
+import com.crud.application.exception.PinCodeNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,7 +21,7 @@ public class GlobalExceptionHandler {
     /*
     Below method to handle NoUserFoundException
      */
-    @ExceptionHandler({NoUserFoundException.class,DetailsNotFoundException.class, NoPanDataAvailableException.class})
+    @ExceptionHandler({NoUserFoundException.class,DetailsNotFoundException.class, NoPanDataAvailableException.class, PinCodeNotFoundException.class})
     public ResponseEntity<Map<String,Object>> noUserFoundException(RuntimeException exception){
         Map<String,Object> error=new HashMap<>();
         error.put("Exception name",exception.getClass().getSimpleName());
