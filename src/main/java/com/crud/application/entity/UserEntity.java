@@ -1,5 +1,6 @@
 package com.crud.application.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
@@ -28,4 +29,10 @@ public class UserEntity {
     public String toString(){
         return name + " " + email + " " + address.toString();
     }
+    @Column(name = "USERNAME")
+    private String username;
+    @Column(name = "PASSWORD")
+    private String password;
+    @Column(name = "ROLE")
+    private String role;
 }

@@ -23,4 +23,8 @@ public class PanEntity {
     public String toString(){
         return  userId + " " + appliedOn;
     }
+    @Column(name = "HOLDER_NAME")
+    private String holderName;
+    @Column(name = "EMAIL")
+    private String email;
 }

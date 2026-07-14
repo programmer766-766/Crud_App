@@ -15,6 +15,7 @@ import com.crud.application.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,6 +28,7 @@ public class CrudService implements ICrudApp,IPanData,PinCode{
 
     private final UserRepository userRepository;
     private final PanRepository panRepository;
+    private final PasswordEncoder passwordEncoder;
     private final AddressRepo addressRepo;
 
     /*
@@ -46,6 +48,10 @@ panRepository.findAll();
         panEntity.setPanNumber(autoPanNumber());
         panEntity.setUserId(addUser);
         addUser.setPanId(panEntity);
+        addUser.setUsername(userRequestDto.getUsername());
+        addUser.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+        addUser.setRole("ROLE_USER");
+
         AddressEntity addAddress=new AddressEntity();
         addAddress.setCity(userRequestDto.getCity());
         addAddress.setCountry(userRequestDto.getAddress().getCountry());
@@ -123,12 +129,14 @@ panRepository.findAll();
         pan.setPanNumber("husw grsd pouy");
         pan.setAppliedOn(LocalDateTime.now());
         pan.setUserId(userEntity);
+        pan.setHolderName(userEntity.getName());
+        pan.setEmail(userEntity.getEmail());
         //update user entity for adding pan entity
         userEntity.setPanId(pan);
         //save
         panRepository.save(pan);
         //return proper response
-        return new PanResponseDto(userEntity.getName(),autoPanNumber(),LocalDateTime.now());
+        return new PanResponseDto(userEntity.getName(),autoPanNumber(),LocalDateTime.now(),userEntity.getEmail());
 
     }
 
@@ -143,12 +151,22 @@ panRepository.findAll();
     Implement method for get all pan available in Pan Table
      */
     @Override
-    public List<PanEntity> getAllPanData() {
+    public List<PanResponseDto> getAllPanData() {
         List<PanEntity> panData = panRepository.findAll();
         if(panData.isEmpty()){
             throw new NoPanDataAvailableException("No pan Available...");
         }
-        return panData;
+        //Map the Pan Entity details to the Response Object
+       return panData.stream().map(pan->{
+           PanResponseDto panResponseDto=new PanResponseDto();
+           panResponseDto.setPanNumber(pan.getPanNumber());
+           panResponseDto.setName(pan.getHolderName());
+           panResponseDto.setEmail(pan.getEmail());
+           panResponseDto.setAppliedOn(pan.getAppliedOn());
+           panResponseDto.setPanId(pan.getPanId());
+
+           return panResponseDto;
+       }).toList();
     }
 // get user details by pan
     @Override
@@ -189,5 +207,14 @@ panRepository.findAll();
             throw new PinCodeNotFoundException("PinCode Not Found...");
         AddressEntity address = addressRepo.findAreaByZipCode(pinCode).get();
         return address.getCity()+address.getCountry()+address.getState();
+    }
+
+    @Override
+    public String updatePanEmail(int userId, String email) {
+        int rowAffected = userRepository.updatePanEmail(userId, email);
+        if(rowAffected>0){
+            return "Update completed!!";
+        }
+        throw new RuntimeException("Updation Failed");
     }
 }
