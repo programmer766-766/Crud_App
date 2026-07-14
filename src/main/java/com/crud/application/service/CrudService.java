@@ -122,24 +122,36 @@ panRepository.findAll();
         pan.setPanNumber("husw grsd pouy");
         pan.setAppliedOn(LocalDateTime.now());
         pan.setUserId(userEntity);
+        pan.setHolderName(userEntity.getName());
+        pan.setEmail(userEntity.getEmail());
         //update user entity for adding pan entity
         userEntity.setPanId(pan);
         //save
         panRepository.save(pan);
         //return proper response
-        return new PanResponseDto(userEntity.getName(),"abcd xcuh oiuy",LocalDateTime.now());
+        return new PanResponseDto(userEntity.getName(),"abcd xcuh oiuy",LocalDateTime.now(),userEntity.getEmail());
 
     }
     /*
     Implement method for get all pan available in Pan Table
      */
     @Override
-    public List<PanEntity> getAllPanData() {
+    public List<PanResponseDto> getAllPanData() {
         List<PanEntity> panData = panRepository.findAll();
         if(panData.isEmpty()){
             throw new NoPanDataAvailableException("No pan Available...");
         }
-        return panData;
+        //Map the Pan Entity details to the Response Object
+       return panData.stream().map(pan->{
+           PanResponseDto panResponseDto=new PanResponseDto();
+           panResponseDto.setPanNumber(pan.getPanNumber());
+           panResponseDto.setName(pan.getHolderName());
+           panResponseDto.setEmail(pan.getEmail());
+           panResponseDto.setAppliedOn(pan.getAppliedOn());
+           panResponseDto.setPanId(pan.getPanId());
+
+           return panResponseDto;
+       }).toList();
     }
     /*
      implementation method for view specific user along with pan details
@@ -173,5 +185,18 @@ panRepository.findAll();
             throw new PinCodeNotFoundException("PinCode Not Found...");
         AddressEntity address = addressRepo.findAreaByZipCode(pinCode).get();
         return address.getCity()+address.getCountry()+address.getState();
+    }
+
+    @Override
+    public String updatePanEmail(int userId, String email) {
+
+        UserEntity userEntity = userRepository.fetchUserWithPan(userId);
+        PanEntity pan = userEntity.getPanId();
+        //update pan email
+        pan.setEmail(email);
+        //save pan
+        panRepository.save(pan);
+
+        return "Updation completed";
     }
 }

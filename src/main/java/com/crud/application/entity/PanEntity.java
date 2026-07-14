@@ -20,4 +20,8 @@ public class PanEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "USER_ID")
     private UserEntity userId;
+    @Column(name = "HOLDER_NAME")
+    private String holderName;
+    @Column(name = "EMAIL")
+    private String email;
 }

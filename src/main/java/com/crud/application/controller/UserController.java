@@ -76,7 +76,7 @@ public class UserController {
 
     //controller method for get all pan data's
     @GetMapping("/get-all/pan")
-    public ResponseEntity<List<PanEntity>> getAllPans(){
+    public ResponseEntity<List<PanResponseDto>> getAllPans(){
         return ResponseEntity.ok(crudService.getAllPanData());
     }
 
@@ -100,6 +100,12 @@ public class UserController {
     @GetMapping("/get/pincode/{code}")
     public ResponseEntity<String> verifyPinCode(@PathVariable String code){
         return new ResponseEntity<>(crudService.verifyPinCode(code), HttpStatus.OK);
+    }
+
+    //controller for update pan card email
+    @PutMapping("/{userId}/update-pan-email")
+    public ResponseEntity<String> updatePanEmail(@PathVariable int userId,@RequestParam String email){
+        return ResponseEntity.ok(crudService.updatePanEmail(userId,email));
     }
 
 }
