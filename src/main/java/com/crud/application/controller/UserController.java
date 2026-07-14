@@ -102,6 +102,10 @@ public class UserController {
         return new ResponseEntity<>(crudService.verifyPinCode(code), HttpStatus.OK);
     }
 
+    @GetMapping("/get/pan/{id}")
+    public ResponseEntity<String> getUSerByPan(@PathVariable String id){
+        return ResponseEntity.ok(crudService.getUserByPan(id).toString());
+    }
     //controller for update pan card email
     @PutMapping("/{userId}/update-pan-email")
     public ResponseEntity<String> updatePanEmail(@PathVariable int userId,@RequestParam String email){

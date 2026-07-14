@@ -28,4 +28,9 @@ public class AddressEntity {
 
     @OneToMany(mappedBy = "address", cascade = CascadeType.ALL)
     private List<UserEntity> user = new ArrayList<>();
+
+    public String toString(){
+
+        return  city + " " + street + " " + zip + " " + country + " " + state + " " + phone;
+    }
 }

@@ -19,6 +19,10 @@ public class UserRequestDto{
     @NotNull(message = "Can't null this field")
     @Valid
     private AddressDto address;
+
+    @NotNull
+    @Valid
+    private PanDto panData;
     @NotBlank(message = "Username cannot be empty")
     private String username;
     @NotBlank(message = "Password cannot be empty")

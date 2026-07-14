@@ -3,6 +3,7 @@ package com.crud.application.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Data
@@ -24,6 +25,10 @@ public class UserEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "PAN_ID")
     private PanEntity panId;
+
+    public String toString(){
+        return name + " " + email + " " + address.toString();
+    }
     @Column(name = "USERNAME")
     private String username;
     @Column(name = "PASSWORD")

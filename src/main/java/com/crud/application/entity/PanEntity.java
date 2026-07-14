@@ -2,6 +2,8 @@ package com.crud.application.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import java.time.LocalDateTime;
 
@@ -10,9 +12,6 @@ import java.time.LocalDateTime;
 @Data
 public class PanEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "PAN_ID")
-    private Integer panId;
     @Column(name = "PAN_NUMBER")
     private String panNumber;
     @Column(name = "APPLIED_ON")
@@ -20,6 +19,10 @@ public class PanEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "USER_ID")
     private UserEntity userId;
+
+    public String toString(){
+        return  userId + " " + appliedOn;
+    }
     @Column(name = "HOLDER_NAME")
     private String holderName;
     @Column(name = "EMAIL")
