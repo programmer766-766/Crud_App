@@ -32,6 +32,12 @@ public class JWTFilter extends OncePerRequestFilter {
             String token = null;
             String username = null;
 
+            String h2Url=request.getRequestURI();
+            if(h2Url.startsWith("/h2-console")){
+                filterChain.doFilter(request,response);
+                return;
+            }
+
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7);
                 username = jwtService.extractUsername(token);
