@@ -11,6 +11,7 @@ import com.crud.application.exception.NoUserFoundException;
 import com.crud.application.repository.PanRepository;
 import com.crud.application.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ import java.util.List;
 public class CrudService implements ICrudApp,IPanData{
     private final UserRepository userRepository;
     private final PanRepository panRepository;
+    private final PasswordEncoder passwordEncoder;
 
     /*
     Method implementation for add user,it except an UserRequestDto object from user
@@ -33,6 +35,10 @@ panRepository.findAll();
         UserEntity addUser=new UserEntity();
         addUser.setName(userRequestDto.getName());
         addUser.setEmail(userRequestDto.getEmail());
+        addUser.setUsername(userRequestDto.getUsername());
+        addUser.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+        addUser.setRole("ROLE_USER");
+
         AddressEntity addAddress=new AddressEntity();
         addAddress.setCity(userRequestDto.getCity());
         addAddress.setCountry(userRequestDto.getAddress().getCountry());
