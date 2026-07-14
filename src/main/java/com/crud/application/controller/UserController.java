@@ -95,6 +95,7 @@ public class UserController {
         }
 
         throw new BadCredentialsException("Invalid username/password");
+    }
 //    get pin code details
     @GetMapping("/get/pincode/{code}")
     public ResponseEntity<String> verifyPinCode(@PathVariable String code){
