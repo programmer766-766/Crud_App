@@ -1,5 +1,6 @@
 package com.crud.application.controller;
 
+import com.crud.application.dtos.AuthRequestDto;
 import com.crud.application.dtos.PanResponseDto;
 import com.crud.application.dtos.UserProfileResponseDto;
 import com.crud.application.dtos.UserRequestDto;
@@ -8,6 +9,7 @@ import com.crud.application.entity.UserEntity;
 import com.crud.application.exception.DetailsNotFoundException;
 import com.crud.application.exception.NoUserFoundException;
 import com.crud.application.service.CrudService;
+import com.crud.application.service.JWTService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
@@ -15,9 +17,15 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -26,6 +34,8 @@ import java.util.List;
 public class UserController {
 
     private final CrudService crudService;
+    private final AuthenticationManager authenticationManager;
+    private final JWTService jwtService;
 
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201",description = "created"),
@@ -74,6 +84,17 @@ public class UserController {
     public ResponseEntity<UserProfileResponseDto> showUserProfile(@PathVariable int userId){
         return ResponseEntity.ok(crudService.showUserProfile(userId));
     }
+    //controller method for authenticate user
+    @PostMapping("/auth")
+    public ResponseEntity<Map<String,String>> authenticateUser(@Valid@RequestBody AuthRequestDto authRequest){
+        Authentication authenticate = authenticationManager.authenticate(new
+                UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+        if(authenticate.isAuthenticated()){
+            String token = jwtService.generateToken(authRequest.getUsername());
+            return new ResponseEntity<>( new HashMap<String,String>(Map.of("User name", authRequest.getUsername(),"Token",token)),HttpStatus.OK);
+        }
+
+        throw new BadCredentialsException("Invalid username/password");
 //    get pin code details
     @GetMapping("/get/pincode/{code}")
     public ResponseEntity<String> verifyPinCode(@PathVariable String code){

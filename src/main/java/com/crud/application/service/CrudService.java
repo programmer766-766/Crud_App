@@ -13,6 +13,7 @@ import com.crud.application.repository.AddressRepo;
 import com.crud.application.repository.PanRepository;
 import com.crud.application.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ public class CrudService implements ICrudApp,IPanData,PinCode{
 
     private final UserRepository userRepository;
     private final PanRepository panRepository;
+    private final PasswordEncoder passwordEncoder;
     private final AddressRepo addressRepo;
 
     /*
@@ -39,6 +41,10 @@ panRepository.findAll();
         UserEntity addUser=new UserEntity();
         addUser.setName(userRequestDto.getName());
         addUser.setEmail(userRequestDto.getEmail());
+        addUser.setUsername(userRequestDto.getUsername());
+        addUser.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+        addUser.setRole("ROLE_USER");
+
         AddressEntity addAddress=new AddressEntity();
         addAddress.setCity(userRequestDto.getCity());
         addAddress.setCountry(userRequestDto.getAddress().getCountry());
