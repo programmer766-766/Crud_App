@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/api")
@@ -32,24 +33,22 @@ public class UserController {
             @ApiResponse(responseCode = "500",description = "check your connection"),
             @ApiResponse(responseCode = "409",description = "conflict already exists in database")})
     @PostMapping("/create-user")
-    public ResponseEntity<String> createUser(@Valid @RequestBody UserRequestDto user){
-        if(user==null)
-            throw new DetailsNotFoundException("User cannot be null");
-       return new ResponseEntity<>( "Mr."+crudService.addUser(user)
-               .getName()+" your details was successfully added",HttpStatus.CREATED);
+    public ResponseEntity<String> createUser(@Valid @RequestBody UserRequestDto user) throws ExecutionException, InterruptedException {
+        crudService.addUser(user);
+         return new ResponseEntity<>( "Adding your data...",HttpStatus.ACCEPTED);
     }
 
     @PutMapping("/update-user/{id}")
     public ResponseEntity<String> updateUser(@PathVariable int id,@Valid @RequestBody UserRequestDto user){
-        if (crudService.isExists(id))
-            throw new DetailsNotFoundException("User cannot be null");
-        return new ResponseEntity<>( crudService.updateUser(id,user),HttpStatus.OK);
+
+        crudService.updateUser(id,user);
+        return new ResponseEntity<>( "Processing your data...",HttpStatus.OK);
 
     }
 
     @DeleteMapping("/delete-user/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable int id){
-        if (crudService.isExists(id))
+        if (!crudService.isExists(id))
             throw new NoUserFoundException("This "+id+" user doesn't exists");
     return new ResponseEntity<>(crudService.deleteUser(id),HttpStatus.ACCEPTED);
     }
@@ -83,5 +82,9 @@ public class UserController {
     @GetMapping("/get/pan/{id}")
     public ResponseEntity<String> getUSerByPan(@PathVariable String id){
         return ResponseEntity.ok(crudService.getUserByPan(id).toString());
+    }
+    @PutMapping("/update/{panId}")
+    public ResponseEntity<UserEntity> updateUserByPan(@PathVariable String panId,@RequestBody UserRequestDto user){
+        return new ResponseEntity<>(crudService.updateUserByPan(panId,user),HttpStatus.ACCEPTED);
     }
 }

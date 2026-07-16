@@ -12,14 +12,22 @@ import com.crud.application.exception.PinCodeNotFoundException;
 import com.crud.application.repository.AddressRepo;
 import com.crud.application.repository.PanRepository;
 import com.crud.application.repository.UserRepository;
+import io.github.bucket4j.Bucket;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @AllArgsConstructor
 @Service
@@ -28,37 +36,50 @@ public class CrudService implements ICrudApp,IPanData,PinCode{
     private final UserRepository userRepository;
     private final PanRepository panRepository;
     private final AddressRepo addressRepo;
+    private Bucket bucket;
 
     /*
     Method implementation for add user,it except an UserRequestDto object from user
      */
+//    @Async("Email")
     @Override
-    public UserResponseDto addUser(UserRequestDto userRequestDto) {
-
-//testing
-panRepository.findAll();
+    @Async("Email")
+    public CompletableFuture<UserResponseDto> addUser(UserRequestDto userRequestDto) {
         //map user data into entity fields
-
         UserEntity addUser=new UserEntity();
-        addUser.setName(userRequestDto.getName());
-        addUser.setEmail(userRequestDto.getEmail());
         PanEntity panEntity=new PanEntity();
-        panEntity.setPanNumber(autoPanNumber());
-        panEntity.setUserId(addUser);
-        addUser.setPanId(panEntity);
         AddressEntity addAddress=new AddressEntity();
-        addAddress.setCity(userRequestDto.getCity());
-        addAddress.setCountry(userRequestDto.getAddress().getCountry());
-        addAddress.setStreet(userRequestDto.getAddress().getStreet());
-        addAddress.setPhone(userRequestDto.getAddress().getPhone());
-        addAddress.setZip(userRequestDto.getAddress().getZip());
-        addAddress.setPhone(userRequestDto.getAddress().getPhone());
-        addUser.setAddress(addAddress);
-        //save user entity
-        userRepository.save(addUser);
-        //return an Response object to the user
-        return new UserResponseDto(userRequestDto.getName(),userRequestDto.getEmail(),userRequestDto.getCity());
-    }
+        if (!bucket.tryConsume(1))
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,"your limit exceeded");
+        try{
+            System.out.println("Adding to database...");
+            Thread.sleep(3000);
+            addUser.setName(userRequestDto.getName());
+            addUser.setEmail(userRequestDto.getEmail());
+            addUser.setPanId(panEntity);
+            addUser.setAddress(addAddress);
+
+            panEntity.setPanNumber(autoPanNumber());
+            panEntity.setUserId(addUser);
+
+            addAddress.setCity(userRequestDto.getCity());
+            addAddress.setCountry(userRequestDto.getAddress().getCountry());
+            addAddress.setStreet(userRequestDto.getAddress().getStreet());
+            addAddress.setPhone(userRequestDto.getAddress().getPhone());
+            addAddress.setZip(userRequestDto.getAddress().getZip());
+            userRepository.save(addUser);
+            return CompletableFuture.completedFuture(new UserResponseDto(userRequestDto.getName(),userRequestDto.getEmail(),userRequestDto.getCity()));
+
+
+
+        }
+        catch (InterruptedException ex)
+        {
+            System.out.println(ex.getMessage());
+        return CompletableFuture.failedFuture(ex);
+        }
+
+        }
     /*
     Method implementation for get all users from UserEntity table
      */
@@ -71,37 +92,45 @@ panRepository.findAll();
         return users;
     }
 
+    @CachePut(cacheNames = "pan",key = "#userId")
     @Override
-    public String updateUser(int userId, UserRequestDto userRequestDto) {
-        if(!userRepository.existsById(userId))
-            throw new NoUserFoundException("No user available in this id "+userId+"...");
-       UserEntity user = userRepository.findById(userId).get();
-       user.setName(userRequestDto.getName());
-       user.setEmail(userRequestDto.getEmail());
-       AddressEntity addAddress=new AddressEntity();
-       addAddress.setCity(userRequestDto.getCity());
-       user.setAddress(addAddress);
-       userRepository.save(user);
-        return "Successfully update your details Mr."+user.getName();
+    @Async("Email")
+    public CompletableFuture<String> updateUser(int userId, UserRequestDto userRequestDto) {
+        try {
+            System.out.println("Saving...");
+            Thread.sleep(3000);
+            UserEntity user = userRepository.findById(userId)
+                    .orElseThrow(() -> new NoUserFoundException("User not found in this id : " + userId));
+            user.setName(userRequestDto.getName());
+            user.setEmail(userRequestDto.getEmail());
+            AddressEntity addAddress = new AddressEntity();
+            addAddress.setCity(userRequestDto.getCity());
+            user.setAddress(addAddress);
+            userRepository.save(user);
+            return CompletableFuture.completedFuture("Successfully update your details Mr." + user.getName());
+        } catch (InterruptedException ex) {
+            return CompletableFuture.completedFuture(ex.getMessage());
+        }
     }
 
     @Override
     public String deleteUser(int userId) {
-        if(!userRepository.existsById(userId))
-            throw new NoUserFoundException("No user available in this id "+userId+"...");
-        String deleteInfo = userRepository.findById(userId).get().getName();
+
+        String deleteInfo = userRepository.findById(userId)
+                .orElseThrow(
+                ()->new NoUserFoundException("No user available in this id "+userId+"...")).getName();
         userRepository.deleteById(userId);
         return "Mr."+deleteInfo+"your information was successfully deleted.";
     }
-
+    @Cacheable(value = "pan",key = "#result.name")
     public UserEntity getUserDetail(String name){
-        if(!userRepository.existsByName(name))
-            throw new NoUserFoundException("No user available in this name "+name+"...");
-        return userRepository.findByName(name);
+        return userRepository.findByName(name)
+                .orElseThrow(
+                ()->new NoUserFoundException("No user available in this name "+name+"..."));
     }
 
     public boolean isExists(int id){
-            return !userRepository.existsById(id);
+            return userRepository.existsById(id);
     }
 
 
@@ -151,12 +180,19 @@ panRepository.findAll();
         return panData;
     }
 // get user details by pan
+    @Cacheable(value = "pan",key = "#panId")
     @Override
     public UserEntity getUserByPan(String panId) {
+        System.err.println("getUserByPan");
         return panRepository.findUserByPan(panId)
                 .orElseThrow(()->new NoPanDataAvailableException("No pan Available..."));
     }
-
+    @CachePut(value = "pan",key = "#panId")
+    public UserEntity updateUserByPan(String panId, UserRequestDto userRequestDto) {
+        UserEntity userEntity = panRepository.findUserByPan(panId).get();
+        userEntity.setName(userRequestDto.getName());
+        return userRepository.save(userEntity);
+    }
     /*
      implementation method for view specific user along with pan details
      */
@@ -183,6 +219,7 @@ panRepository.findAll();
         throw new NoPanDataAvailableException("No Pan Details available to the user:"+userId);
     }
 
+    @Cacheable(value = "pan",key = "#pinCode")
     @Override
     public String verifyPinCode(String pinCode) {
         if(!addressRepo.isExists(pinCode))

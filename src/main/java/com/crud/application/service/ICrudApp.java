@@ -6,11 +6,12 @@ import com.crud.application.dtos.UserResponseDto;
 import com.crud.application.entity.UserEntity;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public interface ICrudApp {
-    UserResponseDto addUser(UserRequestDto userRequestDto);
+    CompletableFuture<UserResponseDto> addUser(UserRequestDto userRequestDto);
     List<UserEntity> getAllUsers();
-    String updateUser(int userId, UserRequestDto userRequestDto);
+    CompletableFuture<String> updateUser(int userId, UserRequestDto userRequestDto);
     String deleteUser(int userId);
     UserProfileResponseDto showUserProfile(int userId);
 }
